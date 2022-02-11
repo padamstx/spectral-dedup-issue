@@ -1,0 +1,118 @@
+openapi: 3.0.0
+
+info:
+  title: Root Test Definition
+  description: API definition for testing custom Spectral rules.
+  version: 1.0.0
+
+servers:
+  - url: https://some-madeup-url.com/api
+
+tags:
+  - name: Drinks
+    description: Operations related to drinks
+
+paths:
+  /v1/drinks:
+    post:
+      operationId: create_drink
+      summary: Create a drink
+      description: Create a new Drink instance.
+      tags:
+        - Drinks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Drink'
+      responses:
+        '201':
+          description: Success!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Drink'
+              example:
+                type: soda
+                name: Root Beer
+                
+    get:
+      operationId: list_drinks
+      summary: List drinks
+      description: List the available drinks.
+      tags:
+        - Drinks
+      responses:
+        '201':
+          description: Success!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Drinks'
+              example:
+                drinks:
+                  - type: soda
+                    name: Root Beer
+components:
+  schemas:
+    Drink:
+      description: A Drink can be either a Juice or Soda instance.
+      oneOf:
+        - $ref: '#/components/schemas/Juice'
+        - $ref: '#/components/schemas/Soda'
+      discriminator:
+        propertyName: type
+      example:
+        type: soda
+        name: Root Beer
+    Drinks:
+      description: A collection of drinks
+      type: object
+      properties:
+        drinks:
+          description: The list of drinks.
+          type: array
+          items:
+            $ref: '#/components/schemas/Drink'
+    Soda:
+#      description: This is a Soda.
+      type: object
+      required:
+        - type
+        - name
+      properties:
+        type:
+          description: The drink type.
+          type: string
+          pattern: '[a-z]+'
+          minLength: 1
+          maxLength: 64
+          enum:
+            - soda
+        name:
+          description: The name of the soda.
+          type: string
+          pattern: '[a-z]+'
+          minLength: 1
+          maxLength: 64
+    Juice:
+      description: This is a juice.
+      type: object
+      required:
+        - type
+        - fruit
+      properties:
+        type:
+          description: The drink type.
+          type: string
+          pattern: '[a-z]+'
+          minLength: 1
+          maxLength: 64
+          enum:
+            - juice
+        fruit:
+          description: The fruit used in the juice.
+          type: string
+          pattern: '[a-z]+'
+          minLength: 1
+          maxLength: 64

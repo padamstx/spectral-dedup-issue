@@ -1,0 +1,12 @@
+functions: [schemaDescription]
+rules:
+  schema-description:
+    description: Schemas must have a description.
+    message: '{{error}}'
+    resolved: true
+    given:
+      - '$.paths[*][*].requestBody.content.[*].schema'
+      - '$.paths[*][*].responses[*].content[*].schema'
+    then:
+      function: schemaDescription
+    severity: error
