@@ -19,7 +19,7 @@ that are reachable from the paths specified in the rule definition.  So the rule
 - `spectral lint api.yaml`
 
 ## Results:
-You should the following output:
+You should see the following output:
 ```
 $ spectral lint api.yaml
 Visiting path: paths./v1/drinks.post.requestBody.content.application/json.schema
@@ -63,3 +63,43 @@ should be mapped back to the path `components.schemas.Soda`, since that is the s
 lacking the description.
 It seems that the de-duplication logic is tripping over the fact that the `Soda` schema
 is referenced within a `oneOf` list.
+
+
+## [Update] Fix is available
+[This PR](https://github.com/stoplightio/spectral/pull/2202) fixes the problem.
+Here's the output when run with the fixed version of spectral:
+```
+$ node ~/work/tools/spectral/packages/cli/dist/index.js lint api.yaml
+Visiting path: paths./v1/drinks.post.requestBody.content.application/json.schema
+Visiting path: paths./v1/drinks.post.requestBody.content.application/json.schema.oneOf.0
+Visiting path: paths./v1/drinks.post.requestBody.content.application/json.schema.oneOf.0.properties.type
+Visiting path: paths./v1/drinks.post.requestBody.content.application/json.schema.oneOf.0.properties.fruit
+Visiting path: paths./v1/drinks.post.requestBody.content.application/json.schema.oneOf.1
+>> Violation at: paths./v1/drinks.post.requestBody.content.application/json.schema.oneOf.1
+Visiting path: paths./v1/drinks.post.requestBody.content.application/json.schema.oneOf.1.properties.type
+Visiting path: paths./v1/drinks.post.requestBody.content.application/json.schema.oneOf.1.properties.name
+Visiting path: paths./v1/drinks.post.responses.201.content.application/json.schema
+Visiting path: paths./v1/drinks.post.responses.201.content.application/json.schema.oneOf.0
+Visiting path: paths./v1/drinks.post.responses.201.content.application/json.schema.oneOf.0.properties.type
+Visiting path: paths./v1/drinks.post.responses.201.content.application/json.schema.oneOf.0.properties.fruit
+Visiting path: paths./v1/drinks.post.responses.201.content.application/json.schema.oneOf.1
+>> Violation at: paths./v1/drinks.post.responses.201.content.application/json.schema.oneOf.1
+Visiting path: paths./v1/drinks.post.responses.201.content.application/json.schema.oneOf.1.properties.type
+Visiting path: paths./v1/drinks.post.responses.201.content.application/json.schema.oneOf.1.properties.name
+Visiting path: paths./v1/drinks.get.responses.201.content.application/json.schema
+Visiting path: paths./v1/drinks.get.responses.201.content.application/json.schema.properties.drinks
+Visiting path: paths./v1/drinks.get.responses.201.content.application/json.schema.properties.drinks.items
+Visiting path: paths./v1/drinks.get.responses.201.content.application/json.schema.properties.drinks.items.oneOf.0
+Visiting path: paths./v1/drinks.get.responses.201.content.application/json.schema.properties.drinks.items.oneOf.0.properties.type
+Visiting path: paths./v1/drinks.get.responses.201.content.application/json.schema.properties.drinks.items.oneOf.0.properties.fruit
+Visiting path: paths./v1/drinks.get.responses.201.content.application/json.schema.properties.drinks.items.oneOf.1
+>> Violation at: paths./v1/drinks.get.responses.201.content.application/json.schema.properties.drinks.items.oneOf.1
+Visiting path: paths./v1/drinks.get.responses.201.content.application/json.schema.properties.drinks.items.oneOf.1.properties.type
+Visiting path: paths./v1/drinks.get.responses.201.content.application/json.schema.properties.drinks.items.oneOf.1.properties.name
+
+/home/padams/work/test/spectral-dedup-issue-original/api.yaml
+ 77:10  error  schema-description  Schema must have a non-empty description.  components.schemas.Soda
+
+✖ 1 problem (1 error, 0 warnings, 0 infos, 0 hints)
+
+```
